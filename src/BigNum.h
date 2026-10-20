@@ -6,7 +6,6 @@
 #include <string>
 #include <algorithm>
 #include <stdexcept>
-#include <random>
 
 class BigNum {
 private:
@@ -48,9 +47,9 @@ public:
     static BigNum modPow(BigNum base, BigNum exp, const BigNum& mod);
     static BigNum modInverse(const BigNum& a, const BigNum& m);
 
-    static BigNum generateRandom(int numDigits, std::mt19937& rng);
-    static BigNum generateRandomOdd(int numDigits, std::mt19937& rng);
-    static BigNum generateRandomRange(const BigNum& minVal, const BigNum& maxVal, std::mt19937& rng);
+    static BigNum generateRandom(int numDigits);
+    static BigNum generateRandomOdd(int numDigits);
+    static BigNum generateRandomRange(const BigNum& minVal, const BigNum& maxVal);
 
     std::string toString() const;
     friend std::ostream& operator<<(std::ostream& os, const BigNum& b);

@@ -11,3 +11,5 @@ add_executable(rsa_app
     src/RSA.cpp
     src/main.cpp
 )
+
+target_link_libraries(rsa_app bcrypt)

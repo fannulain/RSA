@@ -17,14 +17,11 @@ bool isPrimeFermat(const BigNum& n, int rounds) {
         if ((n % bp).isZero()) return false;
     }
 
-    std::random_device rd;
-    std::mt19937 rng(rd());
-
     BigNum nMinus1 = n - BigNum(1);
     BigNum nMinus2 = n - BigNum(2);
 
     for (int r = 0; r < rounds; ++r) {
-        BigNum a = BigNum::generateRandomRange(BigNum(2), nMinus2, rng);
+        BigNum a = BigNum::generateRandomRange(BigNum(2), nMinus2);
 
         if (BigNum::gcd(a, n) > BigNum(1)) {
             return false;
@@ -40,12 +37,9 @@ bool isPrimeFermat(const BigNum& n, int rounds) {
 }
 
 BigNum generateLargePrime(int digits, int fermatRounds, int* candidateCount) {
-    std::random_device rd;
-    std::mt19937 rng(rd());
-
     int count = 0;
     while (true) {
-        BigNum candidate = BigNum::generateRandomOdd(digits, rng);
+        BigNum candidate = BigNum::generateRandomOdd(digits);
         count++;
         if (isPrimeFermat(candidate, fermatRounds)) {
             if (candidateCount) *candidateCount = count;

@@ -1,28 +1,26 @@
 #include "BigNum.h"
 #include "RSA.h"
+#include "CryptoRandom.h"
 #include <iostream>
 #include <chrono>
 #include <string>
 
 void runBigNumTests(int numTests = 5, int maxDigits = 40) {
-    std::random_device rd;
-    std::mt19937 rng(rd());
-    std::uniform_int_distribution<int> digitsDist(10, maxDigits);
-
     std::cout << "\n======================================================\n";
     std::cout << "  RUNNING " << numTests << " RANDOM TESTS FOR BigNum (up to " << maxDigits << " digits)\n";
+    std::cout << "  Random numbers generated via CSPRNG (BCryptGenRandom)\n";
     std::cout << "======================================================\n\n";
 
     bool allPassed = true;
 
     for (int t = 1; t <= numTests; ++t) {
-        int digitsA = digitsDist(rng);
-        int digitsB = digitsDist(rng);
-        int digitsMod = digitsDist(rng);
+        int digitsA = CryptoRandom::getInt(10, maxDigits);
+        int digitsB = CryptoRandom::getInt(10, maxDigits);
+        int digitsMod = CryptoRandom::getInt(10, maxDigits);
 
-        BigNum a = BigNum::generateRandom(digitsA, rng);
-        BigNum b = BigNum::generateRandom(digitsB, rng);
-        BigNum m = BigNum::generateRandom(digitsMod, rng);
+        BigNum a = BigNum::generateRandom(digitsA);
+        BigNum b = BigNum::generateRandom(digitsB);
+        BigNum m = BigNum::generateRandom(digitsMod);
 
         std::cout << "--- Test " << t << " ---\n";
         std::cout << "a (" << digitsA << " digits): " << a << "\n";
@@ -161,6 +159,7 @@ void runFermatTests() {
 void runRSADemo(int primeDigits = 25) {
     std::cout << "\n======================================================\n";
     std::cout << "  RSA KEY GENERATION & PARAMETERS (" << primeDigits << " digits per prime)\n";
+    std::cout << "  Using CSPRNG (BCryptGenRandom) and Fermat's Little Theorem\n";
     std::cout << "======================================================\n\n";
 
     std::cout << "1. Generating large primes p and q using Fermat's Little Theorem...\n";
@@ -211,7 +210,7 @@ int main() {
                 std::string numStr;
                 std::cin >> numStr;
                 BigNum n(numStr);
-                std::cout << "Testing " << n << " with 30 Fermat rounds...\n";
+                std::cout << "Testing " << n << " with 30 Fermat rounds (CSPRNG random bases)...\n";
                 auto t1 = std::chrono::high_resolution_clock::now();
                 bool isPrime = isPrimeFermat(n, 30);
                 auto t2 = std::chrono::high_resolution_clock::now();
@@ -223,7 +222,7 @@ int main() {
                 int digits = 25;
                 std::cin >> digits;
                 if (digits <= 0) digits = 25;
-                std::cout << "Generating large prime with " << digits << " digits...\n";
+                std::cout << "Generating large prime with " << digits << " digits via BCryptGenRandom...\n";
                 int candidates = 0;
                 auto t1 = std::chrono::high_resolution_clock::now();
                 BigNum prime = generateLargePrime(digits, 25, &candidates);

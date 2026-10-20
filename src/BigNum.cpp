@@ -1,4 +1,5 @@
 #include "BigNum.h"
+#include "CryptoRandom.h"
 
 void BigNum::remove_zeros() {
     while (num.size() > 1 && num.back() == 0) {
@@ -108,7 +109,7 @@ BigNum BigNum::operator+(const BigNum& other) const {
     BigNum res;
     res.num.clear();
     int carry = 0;
-    int n = static_cast<int>(std::max(num.size(), other.num.size()));
+    int n = static_cast<int>((std::max)(num.size(), other.num.size()));
     for (int i = 0; i < n || carry; i++) {
         int sum = carry;
         if (i < static_cast<int>(num.size())) sum += num[i];
@@ -277,48 +278,42 @@ BigNum BigNum::modInverse(const BigNum& a, const BigNum& m) {
     return t0;
 }
 
-BigNum BigNum::generateRandom(int numDigits, std::mt19937& rng) {
+BigNum BigNum::generateRandom(int numDigits) {
     if (numDigits <= 0) {
         throw std::invalid_argument("Error: Number of digits must be positive.");
     }
-    std::uniform_int_distribution<int> leadDist(1, 9);
-    std::uniform_int_distribution<int> digitDist(0, 9);
-
     std::string s;
     s.reserve(numDigits);
-    s += static_cast<char>('0' + leadDist(rng));
+    s += static_cast<char>('0' + CryptoRandom::getDigit(1, 9));
     for (int i = 1; i < numDigits; ++i) {
-        s += static_cast<char>('0' + digitDist(rng));
+        s += static_cast<char>('0' + CryptoRandom::getDigit(0, 9));
     }
     return BigNum(s);
 }
 
-BigNum BigNum::generateRandomOdd(int numDigits, std::mt19937& rng) {
+BigNum BigNum::generateRandomOdd(int numDigits) {
     if (numDigits <= 0) {
         throw std::invalid_argument("Error: Number of digits must be positive.");
     }
-    std::uniform_int_distribution<int> leadDist(1, 9);
-    std::uniform_int_distribution<int> digitDist(0, 9);
     static const int oddDigits[] = {1, 3, 7, 9};
-    std::uniform_int_distribution<int> lastDist(0, 3);
-
     std::string s;
     s.reserve(numDigits);
-    s += static_cast<char>('0' + leadDist(rng));
+    s += static_cast<char>('0' + CryptoRandom::getDigit(1, 9));
     for (int i = 1; i < numDigits - 1; ++i) {
-        s += static_cast<char>('0' + digitDist(rng));
+        s += static_cast<char>('0' + CryptoRandom::getDigit(0, 9));
     }
     if (numDigits > 1) {
-        s += static_cast<char>('0' + oddDigits[lastDist(rng)]);
+        int lastIdx = CryptoRandom::getInt(0, 3);
+        s += static_cast<char>('0' + oddDigits[lastIdx]);
     } else {
         static const int singleOdds[] = {3, 5, 7};
-        std::uniform_int_distribution<int> singleDist(0, 2);
-        s = std::to_string(singleOdds[singleDist(rng)]);
+        int idx = CryptoRandom::getInt(0, 2);
+        s = std::to_string(singleOdds[idx]);
     }
     return BigNum(s);
 }
 
-BigNum BigNum::generateRandomRange(const BigNum& minVal, const BigNum& maxVal, std::mt19937& rng) {
+BigNum BigNum::generateRandomRange(const BigNum& minVal, const BigNum& maxVal) {
     if (minVal > maxVal) {
         throw std::invalid_argument("Error: minVal cannot be greater than maxVal.");
     }
@@ -328,13 +323,13 @@ BigNum BigNum::generateRandomRange(const BigNum& minVal, const BigNum& maxVal, s
     BigNum diff = maxVal - minVal;
     size_t digits = diff.digitCount();
 
-    std::uniform_int_distribution<int> digitDist(0, 9);
     while (true) {
+        size_t len = static_cast<size_t>(CryptoRandom::getInt(1, static_cast<int>(digits)));
         std::string s;
-        std::uniform_int_distribution<size_t> lenDist(1, digits);
-        size_t len = lenDist(rng);
-        for (size_t i = 0; i < len; ++i) {
-            s += static_cast<char>('0' + digitDist(rng));
+        s.reserve(len);
+        s += static_cast<char>('0' + CryptoRandom::getDigit(1, 9));
+        for (size_t i = 1; i < len; ++i) {
+            s += static_cast<char>('0' + CryptoRandom::getDigit(0, 9));
         }
         BigNum candidate(s);
         if (candidate <= diff) {
